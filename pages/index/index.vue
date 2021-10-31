@@ -2,8 +2,8 @@
 	<view class="index">
 		<u-swiper :list="slides" name="img_url" height="320"></u-swiper>
 		<u-tabs :list="sortList" :is-scroll="false" :current="currentIndex" @change="handleSortChange"></u-tabs>
-		<u-row gutter="16" class="u-skeleton">
-			<u-col span="6" v-for="item in goodsList.length ? goodsList : [{},{},{},{},{},{}]" :key="goodsList.id">
+		<u-row class="u-skeleton" gutter="16">
+			<u-col span="6" v-for="(item, index) in goodsList" :key="index">
 				<goods-card :goods="item" />
 			</u-col>
 		</u-row>
@@ -34,7 +34,7 @@
 				],
 				currentIndex: 0,
 				slides: [],
-				goodsList: [],
+				goodsList: [{}, {}, {}, {}, {}, {}],
 				page: 1,
 				loading: false,
 				status: 'loadmore'
@@ -46,7 +46,7 @@
 		methods: {
 			handleSortChange(index) {
 				this.currentIndex = index
-				this.goodsList = []
+				this.goodsList = [{}, {}, {}, {}, {}, {}]
 				this.page = 1
 				this.getIndexData()
 			},
@@ -71,16 +71,20 @@
 				}
 				if (indexData.goods.data.length) {
 					this.status = 'loadmore'
-					this.goodsList = [...this.goodsList, ...indexData.goods.data]
+					this.goodsList =
+						this.goodsList.pop().title ? [...this.goodsList, ...indexData.goods.data] : indexData
+						.goods.data
 				} else {
 					this.status = 'nomore'
 				}
 			}
 		},
 		onReachBottom() {
-			this.page++
-			this.status = 'loading'
-			this.getIndexData()
+			if (this.status !== 'nomore') {
+				this.page++
+				this.status = 'loading'
+				this.getIndexData()
+			}
 		}
 	}
 </script>
